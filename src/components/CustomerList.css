@@ -1,0 +1,46 @@
+div#root {
+    background-color: rgb(214, 249, 204);
+    width: 450px;
+}
+
+table {
+    margin: 5px;
+    background-color: white;
+    font-family: monospace;
+}
+
+.boxed {
+    border: 1.5px solid #aaa;
+    width: 415px;
+    margin: 10px;
+    background-color: #b3b2b3;
+    display: inline-block;
+    border-radius: 5px;
+    padding-left: 5px;;
+    padding-right: 5px;
+    padding-top:0px;
+    padding-bottom: 5px;
+}
+
+table,
+td,
+tr {
+    border: 1.3px solid #aaa;
+     border-collapse: collapse; 
+    padding: 3px;
+}
+
+th {
+    background-color: rgb(233, 173, 251);
+    font-weight: normal;
+    border: 1px #aaa solid;
+}
+
+#customer-list {
+    width: inheri;
+    margin:0px;
+    border: 0px;
+}
+
+
+

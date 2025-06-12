@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { getAll, post, put, deleteById } from './memdb.js'
+import { getAllCustomers, post, put, deleteById } from './rest/restdb.js'
 import './App.css';
+import { CustomerList } from './components/CustomerList';
 
 function log(message) { console.log(message); }
 
@@ -9,27 +10,46 @@ export function App(params) {
   const [customers, setCustomers] = useState([]);
   const [formObject, setFormObject] = useState(blankCustomer);
   let mode = (formObject.id >= 0) ? 'Update' : 'Add';
-  useEffect(() => { getCustomers(); }, []);
+ // useEffect(() => { getAllCustomers(); }, []);
+
+
+  // useEffect(() => {
+  //   let promise = getAllCustomers();
+  //   promise.then(
+  //     (text) => {
+  //       let customerArray = JSON.parse(text);
+  //       setCustomers(customerArray);
+  //     }
+  //   )
+  //}, []);
+
+  useEffect(() => {
+    log("in useEffect()");
+  getAllCustomers().then((customerArray) => {
+    log("in getAllCustomers() then(): " + JSON.stringify(customerArray));
+    setCustomers(customerArray);
+  });
+}, []);
 
   const getCustomers = function () {
     log("in getCustomers()");
-    setCustomers(getAll());
+    setCustomers(getAllCustomers());
   }
 
-  const handleListClick = function (item) {
-    log("in handleListClick()");
-    if (formObject.id === item.id) {
-      // If the clicked item is already selected, deselect it
-      setFormObject(blankCustomer);
-    } else {
-      setFormObject(item);
-    }
-  }
+  // const handleListClick = function (item) {
+  //   log("in handleListClick()");
+  //   if (formObject.id === item.id) {
+  //     // If the clicked item is already selected, deselect it
+  //     setFormObject(blankCustomer);
+  //   } else {
+  //     setFormObject(item);
+  //   }
+  // }
 
   const handleInputChange = function (event) {
     log("in handleInputChange()");
-    const {name, value} = event.target;
-    let newFormObject = {...formObject}
+    const { name, value } = event.target;
+    let newFormObject = { ...formObject }
     newFormObject[name] = value;
     setFormObject(newFormObject);
   }
@@ -43,7 +63,7 @@ export function App(params) {
     log("in onDeleteClick()");
     if (formObject.id >= 0) {
       deleteById(formObject.id);
-      getCustomers();
+      getAllCustomers();
     }
     setFormObject(blankCustomer);
   }
@@ -59,7 +79,7 @@ export function App(params) {
     }
     if (mode === 'Update') {
       put(formObject.id, formObject);
-    }    
+    }
     setFormObject(blankCustomer);
   }
 
@@ -67,16 +87,17 @@ export function App(params) {
     <div>
       <div className="boxed" >
         <h4>Customer List</h4>
-        <table id="customer-list">
-          <thead>
+        {/* <table id="customer-list"> */}
+          {/* <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
               <th>Pass</th>
             </tr>
-          </thead>
-          <tbody>
-            {customers.map(
+          </thead> 
+          <tbody> */}
+            <CustomerList customers={customers} blankCustomer={blankCustomer} formObject={formObject} />
+            {/* {customers.map(
               (item, index) => {
                 return (<tr key={item.id}
                   className={(item.id === formObject.id) ? 'selected' : 'not-selected'}
@@ -87,9 +108,9 @@ export function App(params) {
                   <td>{item.password}</td>
                 </tr>);
               }
-            )}
-          </tbody>
-        </table>
+            )} 
+          </tbody>*/}
+        {/* </table> */}
       </div>
       <div className="boxed">
         <div>
@@ -103,7 +124,7 @@ export function App(params) {
                 <td><input
                   type="text"
                   name="name"
-                  onChange={(e) => {handleInputChange(e)}}
+                  onChange={(e) => { handleInputChange(e) }}
                   value={formObject.name}
                   placeholder="Customer Name"
                   required /></td>
@@ -113,7 +134,7 @@ export function App(params) {
                 <td><input
                   type="email"
                   name="email"
-                  onChange={(e) => {handleInputChange(e)}}
+                  onChange={(e) => { handleInputChange(e) }}
                   value={formObject.email}
                   placeholder="name@company.com" /></td>
               </tr>
@@ -122,7 +143,7 @@ export function App(params) {
                 <td><input
                   type="text"
                   name="password"
-                  onChange={(e) => {handleInputChange(e)}}
+                  onChange={(e) => { handleInputChange(e) }}
                   value={formObject.password}
                   placeholder="password" /></td>
               </tr>
