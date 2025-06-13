@@ -106,7 +106,7 @@ export function App(params) {
                 >
                   <td>{item.name}</td>
                   <td>{item.email}</td>
-                  <td>{item.password}</td>
+                  <td id="masked-password">{item.password}</td>
                 </tr>);
               }
             )}
