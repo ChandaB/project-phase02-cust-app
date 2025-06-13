@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAll, post, put, deleteById } from './memdb.js'
+import { getAll, post, put, deleteById } from './rest/restdb.js'
 import './App.css';
 
 function log(message) { console.log(message); }
@@ -8,28 +8,40 @@ export function App(params) {
   let blankCustomer = { "id": -1, "name": "", "email": "", "password": "" };
   const [customers, setCustomers] = useState([]);
   const [formObject, setFormObject] = useState(blankCustomer);
-  let mode = (formObject.id >= 0) ? 'Update' : 'Add';
-  useEffect(() => { getCustomers(); }, []);
+  let mode = (formObject.id !== -1) ? 'Update' : 'Add';
+
+  useEffect(() => {
+    log("in useEffect()");
+    getCustomers().then((customerArray) => {
+      log("in getCustomers() then(): " + JSON.stringify(customerArray));
+      setCustomers(customerArray);
+    });
+  }, []);
 
   const getCustomers = function () {
     log("in getCustomers()");
-    setCustomers(getAll());
+    return getAll().then((customerArray) => {
+      setCustomers(customerArray);
+      return customerArray;
+    });
   }
 
   const handleListClick = function (item) {
     log("in handleListClick()");
     if (formObject.id === item.id) {
       // If the clicked item is already selected, deselect it
-      setFormObject(blankCustomer);
+      setFormObject({ ...blankCustomer });
     } else {
+      log("Selected item: " + JSON.stringify(item));
       setFormObject(item);
+
     }
   }
 
   const handleInputChange = function (event) {
     log("in handleInputChange()");
-    const {name, value} = event.target;
-    let newFormObject = {...formObject}
+    const { name, value } = event.target;
+    let newFormObject = { ...formObject }
     newFormObject[name] = value;
     setFormObject(newFormObject);
   }
@@ -41,11 +53,13 @@ export function App(params) {
 
   let onDeleteClick = function () {
     log("in onDeleteClick()");
-    if (formObject.id >= 0) {
+    if (formObject.id != null && formObject.id !== -1) {
       deleteById(formObject.id);
       getCustomers();
+      setFormObject({ ...blankCustomer });
+    } else {
+      setFormObject({ ...blankCustomer });
     }
-    setFormObject(blankCustomer);
   }
 
   let onSaveClick = function () {
@@ -55,12 +69,20 @@ export function App(params) {
         alert("Please fill in all fields.");
         return;
       }
-      post(formObject);
+      post(formObject).then(() => {
+        log("Customer added successfully.");
+        getCustomers();
+        setFormObject({...blankCustomer});
+      });
     }
     if (mode === 'Update') {
-      put(formObject.id, formObject);
-    }    
-    setFormObject(blankCustomer);
+      log("Form object before update: " + JSON.stringify(formObject));
+      put(formObject.id, formObject).then(() => {
+        log("Customer updated successfully.");
+        getCustomers();
+        setFormObject({ ...blankCustomer });
+      })
+    }
   }
 
   return (
@@ -103,7 +125,7 @@ export function App(params) {
                 <td><input
                   type="text"
                   name="name"
-                  onChange={(e) => {handleInputChange(e)}}
+                  onChange={(e) => { handleInputChange(e) }}
                   value={formObject.name}
                   placeholder="Customer Name"
                   required /></td>
@@ -113,7 +135,7 @@ export function App(params) {
                 <td><input
                   type="email"
                   name="email"
-                  onChange={(e) => {handleInputChange(e)}}
+                  onChange={(e) => { handleInputChange(e) }}
                   value={formObject.email}
                   placeholder="name@company.com" /></td>
               </tr>
@@ -122,7 +144,7 @@ export function App(params) {
                 <td><input
                   type="text"
                   name="password"
-                  onChange={(e) => {handleInputChange(e)}}
+                  onChange={(e) => { handleInputChange(e) }}
                   value={formObject.password}
                   placeholder="password" /></td>
               </tr>
@@ -139,6 +161,6 @@ export function App(params) {
       </div>
     </div>
   );
-}
 
+}
 export default App;
